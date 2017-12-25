@@ -1,0 +1,192 @@
+"""
+Clone of 2048 game.
+"""
+
+import poc_2048_gui
+import random
+
+# Directions, DO NOT MODIFY
+UP = 1
+DOWN = 2
+LEFT = 3
+RIGHT = 4
+
+# Offsets for computing tile indices in each direction.
+# DO NOT MODIFY this dictionary.
+OFFSETS = {UP: (1, 0),
+           DOWN: (-1, 0),
+           LEFT: (0, 1),
+           RIGHT: (0, -1)}
+
+def array_sort(arrline):
+    """ 
+    Function to move all non-zero number to its left.
+    """
+    #iterate each num and move all zero to the end of list
+    #this will look like tile to the left
+    for dummy_index in range(len(arrline)):
+        for line_index in range(len(arrline)-1):
+            if arrline[line_index] == 0 :
+                temp_value = arrline[line_index]
+                arrline[line_index] = arrline[line_index + 1]
+                arrline[line_index + 1] = temp_value
+    return arrline
+
+def merge(line):
+    """
+    Function that merges a single row or column in 2048.
+    """
+    newline = list(line)
+    newline = array_sort(newline)
+    
+    # merge the same number to the left
+    # iterate each item and merge the same number from the left
+    for line_index in range(len(newline)-1):
+        if newline[line_index] != 0 and newline[line_index] == newline[line_index + 1]:
+            newline[line_index] += newline[line_index + 1]
+            newline[line_index + 1] = 0
+        # sort again, move all zero to the right
+        # and the merged number should not merge again,
+            newline = array_sort(newline) 
+            
+    # return list
+    return newline
+
+class TwentyFortyEight:
+    """
+    Class to run the game logic.
+    """
+
+    def __init__(self, grid_height, grid_width):
+        # replace with your code
+        self._height = grid_height
+        self._width = grid_width
+        self._board = []
+        self.reset()
+
+    def reset(self):
+        """
+        Reset the game so the grid is empty except for two
+        initial tiles.
+        """
+        # RESET all grid to zero
+        self._board = []
+        for dummy_col in range(self._width):
+            grid_hi = []
+            for dummy_row in range(self._height):
+                grid_hi.append(0)
+            self._board.append(grid_hi)
+
+        # need two value, so run twice
+        self.new_tile()
+        self.new_tile()
+        
+
+    def __str__(self):
+        """
+        Return a string representation of the grid for debugging.
+        """
+        return str(self._board)
+
+    def get_grid_height(self):
+        """
+        Get the height of the board.
+        """
+        return self._height
+
+    def get_grid_width(self):
+        """
+        Get the width of the board.
+        """
+        return self._width
+
+    def move(self, direction):
+        """
+        Move all tiles in the given direction and add
+        a new tile if any tiles moved.
+        """
+        temp_list = []
+        ini_lists = self._board
+        # still not understand the OFFSET means
+        
+        if direction == UP:
+            output_before = str(self._board)
+            for list_to_count in ini_lists:
+                temp_list.append(merge(list_to_count))
+            self._board = temp_list
+            output_after = str(self._board)
+        elif direction == DOWN:
+            output_before = str(self._board)
+            for list_to_count in ini_lists:
+                list_to_count.reverse()
+                temp = merge(list_to_count)
+                temp.reverse()
+                temp_list.append(temp)
+            self._board = temp_list
+            output_after = str(self._board)
+        elif direction == LEFT:
+            output_before = str(self._board)
+            trans_lists = map(list, zip(*ini_lists))
+            for list_to_count in trans_lists:
+                temp_list.append(merge(list_to_count))
+            self._board = map(list, zip(*temp_list))
+            output_after = str(self._board)                        
+        elif direction == RIGHT:
+            output_before = str(self._board)
+            trans_lists = map(list, zip(*ini_lists))
+            for list_to_count in trans_lists:
+                list_to_count.reverse()
+                temp = merge(list_to_count)
+                temp.reverse()
+                temp_list.append(temp)
+            self._board = map(list, zip(*temp_list))
+            output_after = str(self._board)
+        else:
+            print "WHAT's you input?"
+        
+        # run new_tile to get new tile after each move
+        if output_before != output_after:
+            self.new_tile()
+
+    def get_rand_number(self):
+        """
+        Random return number 2 or 4.
+        90% is 2, 10% is 4
+        """
+        rand_number = random.randrange(0, 10)
+        if rand_number == 0:
+            return 4
+        else:
+            return 2
+    
+    
+    def new_tile(self):
+        """
+        Create a new tile in a randomly selected empty
+        square.  The tile should be 2 90% of the time and
+        4 10% of the time.
+        """
+        # get random number of 2/4
+        random_num = self.get_rand_number()
+        # get random position of two new value
+        random_pos = [random.randrange(self.get_grid_height()), random.randrange(self.get_grid_width())]
+        while self.get_tile(random_pos[0], random_pos[1]) != 0:
+            random_pos = [random.randrange(self.get_grid_height()), random.randrange(self.get_grid_width())]
+        
+        self.set_tile(random_pos[0], random_pos[1], random_num)
+        
+
+    def set_tile(self, row, col, value):
+        """
+        Set the tile at position row, col to have the given value.
+        """
+        self._board[col][row] = value
+
+    def get_tile(self, row, col):
+        """
+        Return the value of the tile at position row, col.
+        """
+        return self._board[col][row]
+
+#TwentyFortyEight(6, 3)
+poc_2048_gui.run_gui(TwentyFortyEight(5, 4))

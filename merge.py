@@ -1,6 +1,7 @@
 """
 Merge function for 2048 game.
 """
+<<<<<<< HEAD
 
 def array_sort(arrline):
     """ 
